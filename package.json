@@ -1,0 +1,21 @@
+{
+  "name": "file-manager",
+  "version": "1.0.0",
+  "description": "--- \r Made by me during The Rolling Scopes School's Node.js course.  \r [See task description](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/file-manager/assignment.md)\r <p align=\"right\">Dec 2022</p>",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kvchvn/file-manager.git"
+  },
+  "author": "Kachan A.A., <aa.kvchvn@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kvchvn/file-manager/issues"
+  },
+  "homepage": "https://github.com/kvchvn/file-manager#readme"
+}
