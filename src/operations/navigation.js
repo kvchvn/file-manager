@@ -1,77 +1,76 @@
-import { dirname, join, relative, resolve } from 'path';
+import { dirname, join } from 'path';
 import { readdir } from 'fs/promises';
 
-import { INVALID_INPUT_ERROR, OPERATION_FAILED_ERROR } from '../constants.js';
-import { print } from '../utils.js';
+import { INVALID_INPUT_ERROR, OPERATION_FAILED_ERROR, ERROR_TYPES } from '../constants.js';
+import { resolvePaths, print } from '../utils.js';
 
-const goToUpperDir = (argsArray) => {
+const handleNavigationCommand = async (mainCommand, argsArray) => {
+    switch (mainCommand) {
+        case 'up': goToUpperDir(argsArray)
+            break;
+        case 'cd': changeDir(argsArray)
+            break;
+        case 'ls': await readCurrentDir(argsArray)
+            break;
+    }
+};
+
+function goToUpperDir(argsArray) {
+    if (argsArray.length) throw new Error(INVALID_INPUT_ERROR);
     try {
-        if (argsArray) throw new Error(INVALID_INPUT_ERROR);
-
         const currentDir = process.cwd();
         const upperDir = dirname(currentDir);
         process.chdir(upperDir);
-    } catch (err) {
-        const { message } = err;
-        print(message);
+    } catch {
+        print(OPERATION_FAILED_ERROR);
     }
-};
+}
 
-const changeDir = (argsArray) => {
+function changeDir(argsArray) {
+    if (argsArray.length !== 1) throw new Error(INVALID_INPUT_ERROR);
     try {
-        if (!argsArray || argsArray.length > 1) throw new Error(INVALID_INPUT_ERROR);
-
-        const [ folderName ] = argsArray;
+        const [dirName] = argsArray;
         const currentDir = process.cwd();
-        const newDir = join(currentDir, folderName);
-
-        const relativePath = relative(currentDir, newDir);
-        const resolvedPath = resolve(relativePath);
-
+        const newDir = join(currentDir, dirName);
+        const resolvedPath = resolvePaths(currentDir, newDir);
         process.chdir(resolvedPath);
     } catch (err) {
-        console.log('[ERROR CODE] ', err.code);
-        let { message } = err;
-        if (err.code) {
-            switch (err.code) {
-                case 'ENOENT': message = `${OPERATION_FAILED_ERROR} Such directory was not found.`
-                    break;
-                case 'ERR_INVALID_ARG_TYPE': message = `${INVALID_INPUT_ERROR} Folder's name should be string.`
-                    break;
-                default: message = `${OPERATION_FAILED_ERROR}`;
-            }
+        let message = OPERATION_FAILED_ERROR;
+        switch (err.code) {
+            case ERROR_TYPES.ENOENT: message += ' Such directory was not found.'
+                break;
+            case ERROR_TYPES.INVALID_ARG: message = `${INVALID_INPUT_ERROR} Folder's name should be string.`
+                break;
         }
         print(message);
     }
-};
+}
 
-const readCurrentDir = async () => {
-  const currentDir = process.cwd();
-  try {
-      const dirContent = await readdir(currentDir, { withFileTypes: true });
-      const tableContent = dirContent
-          .map((dirent) => ({
-              Name: dirent.name,
-              Type: dirent.isDirectory() ? 'directory' : 'file',
-          }))
-          .sort((a, b) => a.Type < b.Type ? -1 : 1);
-      console.table(tableContent);
-  } catch (err) {
-      print(err);
-  }
-};
-
-const handleNavigationCommand = async (mainCommand, parsedArgsArray) => {
-    // console.log('commands: ', mainCommand, argsArray);
-    // console.log('parsed: ', parsedArgsArray);
-     switch (mainCommand) {
-         case 'up': goToUpperDir(parsedArgsArray)
-             break;
-         case 'cd': changeDir(parsedArgsArray)
-             break;
-         case 'ls': await readCurrentDir()
-             break;
-     }
-};
+async function readCurrentDir(argsArray) {
+    if (argsArray.length) throw new Error(INVALID_INPUT_ERROR);
+    try {
+        const currentDir = process.cwd();
+        const dirContent = await readdir(currentDir, { withFileTypes: true });
+        if (dirContent.length) {
+            const tableDirContent = dirContent
+                .map((dirent) => {
+                    let type = 'unknown';
+                    if (dirent.isFile()) type = 'file';
+                    if (dirent.isDirectory()) type = 'directory';
+                    if (dirent.isSymbolicLink()) type = 'symlink';
+                    return {
+                        Name: dirent.name,
+                        Type: type,
+                    };
+                })
+                .sort((a, b) => a.Type < b.Type ? -1 : 1);
+            console.table(tableDirContent);
+        } else {
+            print('The directory is empty.');
+        }
+    } catch {
+        print(OPERATION_FAILED_ERROR);
+    }
+}
 
 export default handleNavigationCommand;
