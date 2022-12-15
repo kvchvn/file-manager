@@ -1,8 +1,16 @@
-import { FILES_COMMANDS_LIST, INVALID_INPUT_ERROR, NAVIGATION_COMMANDS_LIST } from '../constants.js';
+import {
+    FILES_COMMANDS_LIST,
+    HASH_COMMANDS_LIST,
+    INVALID_INPUT_ERROR,
+    NAVIGATION_COMMANDS_LIST,
+    OS_COMMANDS_LIST
+} from '../constants.js';
 import handleFileCommand from './file.js';
 import handleNavigationCommand from './navigation.js';
+import handleOsCommand from "./os.js";
 import { getLocation } from '../messages.js';
 import { print } from '../utils.js';
+import handleHashCommand from "./hash.js";
 
 const parseCommandArgs = (commandLine) => {
     const SPACE = ' ';
@@ -51,7 +59,9 @@ const handleCommand = async (commandLine) => {
     const [mainCommand, ...argsArray] = parseCommandArgs(commandLine);
     const commandsMap = new Map([
         [NAVIGATION_COMMANDS_LIST, handleNavigationCommand],
-        [FILES_COMMANDS_LIST, handleFileCommand]
+        [FILES_COMMANDS_LIST, handleFileCommand],
+        [OS_COMMANDS_LIST, handleOsCommand],
+        [HASH_COMMANDS_LIST, handleHashCommand]
     ]);
     const commandsMapEntries = commandsMap.entries();
     const commandsEntriesArray = Array.from(commandsMapEntries);
