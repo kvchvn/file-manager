@@ -1,33 +1,75 @@
+import { FILES_COMMANDS_LIST, INVALID_INPUT_ERROR, NAVIGATION_COMMANDS_LIST } from '../constants.js';
+import handleFileCommand from './file.js';
 import handleNavigationCommand from './navigation.js';
-import { INVALID_INPUT_ERROR, NAVIGATION_COMMANDS_LIST } from "../constants.js";
-import { getLocation } from "../messages.js";
+import { getLocation } from '../messages.js';
+import { print } from '../utils.js';
 
-const parseCommandArgs = (argsArray) => {
-    if (!argsArray || !argsArray.length) return null;
-    const argsString = argsArray.join(' ');
-    const separator = argsString.includes('"') ? '"' : ' ';
-    return argsString.split(separator).map((arg) => arg.trim()).filter((arg) => arg);
-};
+const parseCommandArgs = (commandLine) => {
+    const SPACE = ' ';
+    const DOUBLE_QUOTE = '"';
 
-const handleCommand = async (command) => {
-    const [mainCommand, ...argsArray] = command.toLowerCase().split(' ');
-    const parsedArgsArray = parseCommandArgs(argsArray);
+    let currentArg = '';
+    const parsedCommandArray = [];
 
-    const commandsMap = new Map([
-        [NAVIGATION_COMMANDS_LIST, handleNavigationCommand]
-    ]);
-    const commandsMapEntries = commandsMap.entries();
-    let commandIsValid = false;
+    let quotesCount = 0;
+    let inQuotes = false;
 
-    Array.from(commandsMapEntries).forEach(async ([commandsList, handler]) => {
-       if (commandsList.includes(mainCommand)) {
-           commandIsValid = true;
-           await handler(mainCommand, parsedArgsArray);
-           getLocation();
-       }
+    commandLine.trim().split('').forEach((char, index, arr) => {
+        if (char === SPACE) {
+            if (inQuotes) {
+                currentArg += char;
+            } else {
+                // there should be gaps between arguments
+                currentArg && parsedCommandArray.push(currentArg);
+                currentArg = '';
+            }
+        } else if (char === DOUBLE_QUOTE) {
+            quotesCount++;
+            inQuotes = !inQuotes;
+            if (currentArg) {
+                parsedCommandArray.push(currentArg);
+                currentArg = '';
+            }
+        } else {
+            // if char is neither space nor double quote
+            currentArg += char;
+        }
+
+        if (index === arr.length - 1 && currentArg) {
+            currentArg && parsedCommandArray.push(currentArg);
+        }
     });
 
-    if (!commandIsValid) throw new Error(INVALID_INPUT_ERROR + ' Command is wrong.');
+    if (quotesCount % 2 !== 0) {
+        throw new Error(INVALID_INPUT_ERROR + ' from parsedFunction');
+    }
+    
+    return parsedCommandArray;
+};
+
+const handleCommand = async (commandLine) => {
+    const [mainCommand, ...argsArray] = parseCommandArgs(commandLine);
+    const commandsMap = new Map([
+        [NAVIGATION_COMMANDS_LIST, handleNavigationCommand],
+        [FILES_COMMANDS_LIST, handleFileCommand]
+    ]);
+    const commandsMapEntries = commandsMap.entries();
+    const commandsEntriesArray = Array.from(commandsMapEntries);
+
+    try {
+        let commandIsValid = false;
+        for (const [commandList, callback] of commandsEntriesArray) {
+            if (commandList.includes(mainCommand)) {
+                commandIsValid = true;
+                await callback(mainCommand, argsArray);
+            }
+        }
+        if (!commandIsValid) throw new Error(INVALID_INPUT_ERROR + ' The command does not exist.');
+    } catch (err) {
+        print(err.message);
+    } finally {
+        getLocation();
+    }
 };
 
 export default handleCommand;
