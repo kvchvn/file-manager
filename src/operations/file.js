@@ -1,9 +1,9 @@
 import { createReadStream, createWriteStream } from 'fs';
 import { appendFile, rename, access, rm } from 'fs/promises';
-import { join, parse } from "path";
+import { join, parse, resolve, format } from 'path';
 
-import { INVALID_INPUT_ERROR, OPERATION_FAILED_ERROR, ERROR_TYPES } from "../constants.js";
-import { print, resolvePaths, goToNextLine, changeBasename } from "../utils.js";
+import { INVALID_INPUT_ERROR, OPERATION_FAILED_ERROR, ERROR_TYPES } from '../constants.js';
+import { print, goToNextLine } from '../utils.js';
 
 const handleFileCommand = async (mainCommand, argsArray) => {
     switch (mainCommand) {
@@ -25,10 +25,10 @@ const handleFileCommand = async (mainCommand, argsArray) => {
 async function readFile(argsArray) {
     if (argsArray.length !== 1) throw new Error(INVALID_INPUT_ERROR);
     try {
-        const [filename] = argsArray;
+        const [filePath] = argsArray;
         const currentDir = process.cwd();
-        const resolvedPath = resolvePaths(currentDir, filename);
-        const rs = createReadStream(resolvedPath);
+        const resolvedFilePath = resolve(currentDir, filePath);
+        const rs = createReadStream(resolvedFilePath);
 
         await new Promise((resolve, reject) => {
             rs.on('end', () => {
@@ -43,6 +43,8 @@ async function readFile(argsArray) {
         let message = OPERATION_FAILED_ERROR;
         switch (err.code) {
             case ERROR_TYPES.ENOENT: message +=  ' Such file was not found.'
+                break;
+            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
                 break;
         }
         print(message);
@@ -67,18 +69,21 @@ async function addFile(argsArray) {
                 break;
             case ERROR_TYPES.ENOENT: message += ' File`s name consists invalid symbols.'
                 break;
+            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
+                break;
         }
         print(message);
     }
 }
 
 async function renameFile(argsArray) {
-    const [relativeFilePath, newFilename] = argsArray;
+    const [filePath, newFilename] = argsArray;
     if (argsArray.length !== 2  || newFilename.includes('/')) throw new Error(INVALID_INPUT_ERROR);
     try {
         const currentDir = process.cwd();
-        const resolvedFilePath = resolvePaths(currentDir, relativeFilePath);
-        const newFilePath = changeBasename(resolvedFilePath, newFilename);
+        const resolvedFilePath = resolve(currentDir, filePath);
+        const parsedFilePath = parse(resolvedFilePath);
+        const newFilePath = format({ ...parsedFilePath, base: newFilename });
 
         await rename(resolvedFilePath, newFilePath);
         print('The file was successfully renamed.');
@@ -87,29 +92,31 @@ async function renameFile(argsArray) {
         switch (err.code) {
             case ERROR_TYPES.ENOENT: message += ' Such file was not found.';
                 break;
+            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
+                break;
         }
         print(message);
     }
 }
 
 async function copyFile(argsArray, { shouldRemoveSourceFile } = { shouldRemoveSourceFile: false }) {
-    const [relativeFilePath, dirForCopy] = argsArray;
+    const [filePath, dirForCopy] = argsArray;
     if (argsArray.length !== 2) throw new Error(INVALID_INPUT_ERROR);
     try {
-        const fileName = parse(relativeFilePath).base;
+        const fileName = parse(filePath).base;
         const currentDir = process.cwd();
-        const filePath = join(currentDir, relativeFilePath);
-        const resolvedDirForCopy = resolvePaths(currentDir, dirForCopy);
+        const resolvedFilePath = resolve(currentDir, filePath);
+        const resolvedDirForCopy = resolve(currentDir, dirForCopy);
         const pathForCopy = join(resolvedDirForCopy, fileName);
 
-        await access(filePath);
+        await access(resolvedFilePath);
 
         const copyPromise = new Promise((resolve, reject) => {
-            const rs = createReadStream(filePath);
+            const rs = createReadStream(resolvedFilePath);
             const ws = createWriteStream(pathForCopy, { flags: 'wx' });
 
             rs.on('end', () => {
-                resolve()
+                resolve();
                 rs.unpipe(ws);
             });
 
@@ -117,15 +124,19 @@ async function copyFile(argsArray, { shouldRemoveSourceFile } = { shouldRemoveSo
             ws.on('error', reject);
             rs.pipe(ws);
         });
-        const removePromise = shouldRemoveSourceFile && rm(filePath);
+        const removePromise = shouldRemoveSourceFile && rm(resolvedFilePath);
 
-        await Promise.allSettled([copyPromise, removePromise]);
+        await Promise.all([copyPromise, removePromise]);
 
         print(`The file was successfully ${shouldRemoveSourceFile ? 'moved' : 'copied'}.`);
     } catch (err) {
         let message = OPERATION_FAILED_ERROR;
         switch (err.code) {
             case ERROR_TYPES.ENOENT: message += ' Such file or directory was not found.'
+                break;
+            case ERROR_TYPES.EEXIST: message += ' Such file already exists.'
+                break;
+            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
                 break;
         }
         print(message);
@@ -141,7 +152,7 @@ async function removeFile(argsArray) {
     try {
         const [filename] = argsArray;
         const currentDir = process.cwd();
-        const filePath = join(currentDir, filename);
+        const filePath = resolve(currentDir, filename);
 
         await rm(filePath);
 
@@ -150,6 +161,8 @@ async function removeFile(argsArray) {
         let message = OPERATION_FAILED_ERROR;
         switch (err.code) {
             case ERROR_TYPES.ENOENT: message += ' Such file was not found.'
+                break;
+            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
                 break;
         }
         print(message);
