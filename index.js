@@ -1,3 +1,3 @@
-import runFileManager from './src/app.js';
+import moveToHomedir from './src/app.js';
 
-runFileManager();
+moveToHomedir();
