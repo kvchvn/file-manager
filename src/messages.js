@@ -10,7 +10,7 @@ export const formattedUsername = username
     : STRANGER_NAME;
 
 export const getLocation = () => {
-  print(`You are currently in ${process.cwd()}`);
+  process.stdout.write(`You are currently in ${process.cwd()}> `);
 };
 
 export const greet = (username) => {
