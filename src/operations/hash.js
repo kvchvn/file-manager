@@ -1,10 +1,9 @@
-import { access } from 'fs/promises';
 import { createReadStream } from 'fs';
 import { resolve } from 'path';
 const { createHash } = await import('crypto');
 
-import { ERROR_TYPES, INVALID_INPUT_ERROR, OPERATION_FAILED_ERROR } from '../constants.js';
-import {goToNextLine, print} from '../utils.js';
+import { INVALID_INPUT_ERROR } from '../constants.js';
+import { goToNextLine } from '../utils.js';
 
 const handleHashCommand = async (mainCommand, argsArray) => {
     switch (mainCommand) {
@@ -20,19 +19,23 @@ async function calculateHash(argsArray) {
         const currentDir = process.cwd();
         const resolvedFilePath = resolve(currentDir, filename);
 
-        await access(resolvedFilePath);
-
         await new Promise((resolve, reject) => {
-            const readStream = createReadStream(resolvedFilePath);
+            const rs = createReadStream(resolvedFilePath);
             const hash = createHash('sha256').setEncoding('hex');
-            readStream.on('error', reject);
+            const handleError = (err) => {
+                rs.unpipe();
+                reject(err);
+            };
+            rs.on('error', handleError);
+            hash.on('error', handleError);
             hash.on('end', () => {
                 goToNextLine();
+                rs.unpipe();
                 resolve();
-                readStream.unpipe(hash);
-                hash.unpipe(process.stdout);
             });
-            readStream.pipe(hash).pipe(process.stdout);
+            rs.pipe(hash).pipe(process.stdout);
+        }).catch((err) => {
+            throw err;
         });
     } catch (err) {
         throw err;

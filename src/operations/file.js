@@ -2,8 +2,8 @@ import { createReadStream, createWriteStream } from 'fs';
 import { appendFile, rename, access, rm } from 'fs/promises';
 import { join, parse, resolve, format } from 'path';
 
-import { INVALID_INPUT_ERROR, OPERATION_FAILED_ERROR, ERROR_TYPES } from '../constants.js';
-import { print, goToNextLine } from '../utils.js';
+import { INVALID_INPUT_ERROR } from '../constants.js';
+import { goToNextLine, print } from '../utils.js';
 
 const handleFileCommand = async (mainCommand, argsArray) => {
     switch (mainCommand) {
@@ -33,11 +33,13 @@ async function readFile(argsArray) {
         await new Promise((resolve, reject) => {
             rs.on('end', () => {
                 goToNextLine();
-                resolve();
                 rs.unpipe(process.stdout);
+                resolve();
             });
             rs.on('error', reject);
             rs.pipe(process.stdout);
+        }).catch((err) => {
+            throw err;
         });
     } catch (err) {
         throw err;
@@ -86,24 +88,31 @@ async function copyFile(argsArray, { shouldRemoveSourceFile } = { shouldRemoveSo
         const resolvedDirForCopy = resolve(currentDir, dirForCopy);
         const pathForCopy = join(resolvedDirForCopy, fileName);
 
-        await access(resolvedFilePath);
+        await Promise.all([access(resolvedFilePath), access(resolvedDirForCopy)]);
 
-        const copyPromise = new Promise((resolve, reject) => {
+        await new Promise((resolve, reject) => {
             const rs = createReadStream(resolvedFilePath);
             const ws = createWriteStream(pathForCopy, { flags: 'wx' });
 
-            rs.on('end', () => {
-                resolve();
+            const handleError = (err) => {
                 rs.unpipe(ws);
+                reject(err);
+            }
+
+            rs.on('end', () => {
+                rs.unpipe(ws);
+                resolve();
             });
-
-            rs.on('error', reject);
-            ws.on('error', reject);
+            rs.on('error', handleError);
+            ws.on('error', handleError);
             rs.pipe(ws);
+        }).catch((err) => {
+            throw err;
         });
-        const removePromise = shouldRemoveSourceFile && rm(resolvedFilePath);
 
-        await Promise.all([copyPromise, removePromise]);
+        if (shouldRemoveSourceFile) {
+            await rm(resolvedFilePath);
+        }
 
         print(`The file was successfully ${shouldRemoveSourceFile ? 'moved' : 'copied'}.`);
     } catch (err) {
