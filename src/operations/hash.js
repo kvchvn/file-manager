@@ -35,14 +35,7 @@ async function calculateHash(argsArray) {
             readStream.pipe(hash).pipe(process.stdout);
         });
     } catch (err) {
-        let message = OPERATION_FAILED_ERROR;
-        switch (err.code) {
-            case ERROR_TYPES.ENOENT: message += ' Such file was not found.'
-                break;
-            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
-                break;
-        }
-        print(message);
+        throw err;
     }
 }
 

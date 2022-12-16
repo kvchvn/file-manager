@@ -1,7 +1,7 @@
 import { dirname, resolve } from 'path';
 import { readdir } from 'fs/promises';
 
-import { INVALID_INPUT_ERROR, OPERATION_FAILED_ERROR, ERROR_TYPES } from '../constants.js';
+import { INVALID_INPUT_ERROR } from '../constants.js';
 import { print } from '../utils.js';
 
 const handleNavigationCommand = async (mainCommand, argsArray) => {
@@ -22,12 +22,7 @@ function goToUpperDir(argsArray) {
         const upperDir = dirname(currentDir);
         process.chdir(upperDir);
     } catch (err) {
-        let message = OPERATION_FAILED_ERROR;
-        switch (err.code) {
-            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
-                break;
-        }
-        print(message);
+       throw err;
     }
 }
 
@@ -39,16 +34,7 @@ function changeDir(argsArray) {
         const newDir = resolve(currentDir, dirName);
         process.chdir(newDir);
     } catch (err) {
-        let message = OPERATION_FAILED_ERROR;
-        switch (err.code) {
-            case ERROR_TYPES.ENOENT: message += ' Such directory was not found.'
-                break;
-            case ERROR_TYPES.INVALID_ARG: message = `${INVALID_INPUT_ERROR} Folder's name should be string.`
-                break;
-            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
-                break;
-        }
-        print(message);
+        throw err;
     }
 }
 
@@ -75,12 +61,7 @@ async function readCurrentDir(argsArray) {
             print('The directory is empty.');
         }
     } catch (err) {
-        let message = OPERATION_FAILED_ERROR;
-        switch (err.code) {
-            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
-                break;
-        }
-        print(message);
+        throw err;
     }
 }
 

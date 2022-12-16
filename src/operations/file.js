@@ -40,14 +40,7 @@ async function readFile(argsArray) {
             rs.pipe(process.stdout);
         });
     } catch (err) {
-        let message = OPERATION_FAILED_ERROR;
-        switch (err.code) {
-            case ERROR_TYPES.ENOENT: message +=  ' Such file was not found.'
-                break;
-            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
-                break;
-        }
-        print(message);
+        throw err;
     }
 }
 
@@ -63,16 +56,7 @@ async function addFile(argsArray) {
         await appendFile(filePath, EMPTY_DATA, { flag: 'ax' });
         print('The file was successfully created.');
     } catch (err) {
-        let message = OPERATION_FAILED_ERROR;
-        switch (err.code) {
-            case ERROR_TYPES.EEXIST: message += ' File already exists.'
-                break;
-            case ERROR_TYPES.ENOENT: message += ' File`s name consists invalid symbols.'
-                break;
-            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
-                break;
-        }
-        print(message);
+        throw err;
     }
 }
 
@@ -88,14 +72,7 @@ async function renameFile(argsArray) {
         await rename(resolvedFilePath, newFilePath);
         print('The file was successfully renamed.');
     } catch (err) {
-        let message = OPERATION_FAILED_ERROR;
-        switch (err.code) {
-            case ERROR_TYPES.ENOENT: message += ' Such file was not found.';
-                break;
-            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
-                break;
-        }
-        print(message);
+        throw err;
     }
 }
 
@@ -130,16 +107,7 @@ async function copyFile(argsArray, { shouldRemoveSourceFile } = { shouldRemoveSo
 
         print(`The file was successfully ${shouldRemoveSourceFile ? 'moved' : 'copied'}.`);
     } catch (err) {
-        let message = OPERATION_FAILED_ERROR;
-        switch (err.code) {
-            case ERROR_TYPES.ENOENT: message += ' Such file or directory was not found.'
-                break;
-            case ERROR_TYPES.EEXIST: message += ' Such file already exists.'
-                break;
-            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
-                break;
-        }
-        print(message);
+        throw err;
     }
 }
 
@@ -158,14 +126,7 @@ async function removeFile(argsArray) {
 
         print('The file was successfully removed.');
     } catch (err) {
-        let message = OPERATION_FAILED_ERROR;
-        switch (err.code) {
-            case ERROR_TYPES.ENOENT: message += ' Such file was not found.'
-                break;
-            case ERROR_TYPES.EPERM: message += ' You do not have required permissions.'
-                break;
-        }
-        print(message);
+        throw err;
     }
 }
 

@@ -1,16 +1,11 @@
-import {
-    FILES_COMMANDS_LIST,
-    HASH_COMMANDS_LIST,
-    INVALID_INPUT_ERROR,
-    NAVIGATION_COMMANDS_LIST,
-    OS_COMMANDS_LIST
-} from '../constants.js';
 import handleFileCommand from './file.js';
 import handleNavigationCommand from './navigation.js';
 import handleOsCommand from "./os.js";
+import handleHashCommand from "./hash.js";
+import handleZipCommand from "./zip.js";
+import { COMMANDS_LIST, ERROR_TYPES, INVALID_INPUT_ERROR, OPERATION_FAILED_ERROR, INVALID_COMMAND_ERROR } from '../constants.js';
 import { getLocation } from '../messages.js';
 import { print } from '../utils.js';
-import handleHashCommand from "./hash.js";
 
 const parseCommandArgs = (commandLine) => {
     const SPACE = ' ';
@@ -49,7 +44,7 @@ const parseCommandArgs = (commandLine) => {
     });
 
     if (quotesCount % 2 !== 0) {
-        throw new Error(INVALID_INPUT_ERROR + ' from parsedFunction');
+        throw new Error(INVALID_INPUT_ERROR);
     }
     
     return parsedCommandArray;
@@ -58,10 +53,11 @@ const parseCommandArgs = (commandLine) => {
 const handleCommand = async (commandLine) => {
     const [mainCommand, ...argsArray] = parseCommandArgs(commandLine);
     const commandsMap = new Map([
-        [NAVIGATION_COMMANDS_LIST, handleNavigationCommand],
-        [FILES_COMMANDS_LIST, handleFileCommand],
-        [OS_COMMANDS_LIST, handleOsCommand],
-        [HASH_COMMANDS_LIST, handleHashCommand]
+        [COMMANDS_LIST.navigation, handleNavigationCommand],
+        [COMMANDS_LIST.file, handleFileCommand],
+        [COMMANDS_LIST.os, handleOsCommand],
+        [COMMANDS_LIST.hash, handleHashCommand],
+        [COMMANDS_LIST.zip, handleZipCommand]
     ]);
     const commandsMapEntries = commandsMap.entries();
     const commandsEntriesArray = Array.from(commandsMapEntries);
@@ -74,9 +70,24 @@ const handleCommand = async (commandLine) => {
                 await callback(mainCommand, argsArray);
             }
         }
-        if (!commandIsValid) throw new Error(INVALID_INPUT_ERROR + ' The command does not exist.');
+        if (!commandIsValid) throw new Error(`${INVALID_INPUT_ERROR} ${INVALID_COMMAND_ERROR}`);
     } catch (err) {
-        print(err.message);
+        if (!err.code) {
+            print(err.message);
+            return;
+        }
+        let message = OPERATION_FAILED_ERROR;
+        switch (err.code) {
+            case ERROR_TYPES.notPermit.code: message += ` ${ERROR_TYPES.notPermit.message}`
+                break;
+            case ERROR_TYPES.notExist.code: message += ` ${ERROR_TYPES.notExist.message}`
+                break;
+            case ERROR_TYPES.alreadyExist.code: message += ` ${ERROR_TYPES.alreadyExist.message}`
+                break;
+            case ERROR_TYPES.invalidArgs.code: message += ` ${ERROR_TYPES.invalidArgs.message}`
+                break;
+        }
+        print(message);
     } finally {
         getLocation();
     }

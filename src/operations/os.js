@@ -1,7 +1,7 @@
 import { EOL, homedir, cpus, arch, hostname } from 'os';
 
-import { INVALID_INPUT_ERROR, OPERATION_FAILED_ERROR } from "../constants.js";
-import { print } from "../utils.js";
+import { INVALID_COMMAND_ERROR, INVALID_INPUT_ERROR } from '../constants.js';
+import { print } from '../utils.js';
 
 const handleOsCommand = (mainCommand, argsArray) => {
     switch (mainCommand) {
@@ -26,7 +26,7 @@ function getOsInfo(argsArray) {
                         Speed: `${(Number(cpusData[0].speed) / 1000).toFixed(1)} GHz`
                     };
                 });
-                print(`The machine has ${cpusData.length} logical cores.\n}`);
+                print(`The machine has ${cpusData.length} logical cores.`);
                 console.table(cpusModelData);
                 break;
             }
@@ -36,10 +36,10 @@ function getOsInfo(argsArray) {
                 break;
             case 'architecture': print(arch())
                 break;
-            default: throw new Error();
+            default: throw new Error(`${INVALID_INPUT_ERROR} ${INVALID_COMMAND_ERROR}`);
         }
-    } catch {
-        print(OPERATION_FAILED_ERROR);
+    } catch (err) {
+        throw err;
     }
 }
 
