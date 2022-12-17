@@ -55,7 +55,15 @@ async function readCurrentDir(argsArray) {
                         Type: type,
                     };
                 })
-                .sort((a, b) => a.Type < b.Type ? -1 : 1);
+                .sort((a, b) => {
+                    if (a.Type < b.Type) {
+                        return -1;
+                    }
+                    if (a.Type === b.Type && a.Name < b.Name) {
+                        return -1;
+                    }
+                    return 1;
+                });
             console.table(tableDirContent);
         } else {
             print('The directory is empty.');
