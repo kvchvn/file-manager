@@ -1,8 +1,8 @@
+const { createHash } = await import('crypto');
 import { createReadStream } from 'fs';
 import { resolve } from 'path';
-const { createHash } = await import('crypto');
 
-import { INVALID_INPUT_ERROR } from '../constants.js';
+import { INVALID_ARGUMENTS_ERROR } from '../constants.js';
 import { goToNextLine } from '../utils.js';
 
 const handleHashCommand = async (mainCommand, argsArray) => {
@@ -13,7 +13,7 @@ const handleHashCommand = async (mainCommand, argsArray) => {
 };
 
 async function calculateHash(argsArray) {
-    if (argsArray.length !== 1) throw new Error(INVALID_INPUT_ERROR);
+    if (argsArray.length !== 1) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const [filename] = argsArray;
         const currentDir = process.cwd();

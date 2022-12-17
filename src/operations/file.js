@@ -2,7 +2,7 @@ import { createReadStream, createWriteStream } from 'fs';
 import { appendFile, rename, access, rm } from 'fs/promises';
 import { join, parse, resolve, format } from 'path';
 
-import { INVALID_INPUT_ERROR } from '../constants.js';
+import { INVALID_ARGUMENTS_ERROR } from '../constants.js';
 import { goToNextLine, print } from '../utils.js';
 
 const handleFileCommand = async (mainCommand, argsArray) => {
@@ -23,7 +23,7 @@ const handleFileCommand = async (mainCommand, argsArray) => {
 };
 
 async function readFile(argsArray) {
-    if (argsArray.length !== 1) throw new Error(INVALID_INPUT_ERROR);
+    if (argsArray.length !== 1) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const [filePath] = argsArray;
         const currentDir = process.cwd();
@@ -47,7 +47,7 @@ async function readFile(argsArray) {
 }
 
 async function addFile(argsArray) {
-    if (argsArray.length !== 1) throw new Error(INVALID_INPUT_ERROR);
+    if (argsArray.length !== 1) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const EMPTY_DATA = '';
 
@@ -64,7 +64,7 @@ async function addFile(argsArray) {
 
 async function renameFile(argsArray) {
     const [filePath, newFilename] = argsArray;
-    if (argsArray.length !== 2  || newFilename.includes('/')) throw new Error(INVALID_INPUT_ERROR);
+    if (argsArray.length !== 2  || newFilename.includes('/')) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const currentDir = process.cwd();
         const resolvedFilePath = resolve(currentDir, filePath);
@@ -80,7 +80,7 @@ async function renameFile(argsArray) {
 
 async function copyFile(argsArray, { shouldRemoveSourceFile } = { shouldRemoveSourceFile: false }) {
     const [filePath, dirForCopy] = argsArray;
-    if (argsArray.length !== 2) throw new Error(INVALID_INPUT_ERROR);
+    if (argsArray.length !== 2) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const fileName = parse(filePath).base;
         const currentDir = process.cwd();
@@ -125,7 +125,7 @@ async function moveFile(argsArray) {
 }
 
 async function removeFile(argsArray) {
-    if (argsArray.length !== 1) throw new Error(INVALID_INPUT_ERROR);
+    if (argsArray.length !== 1) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const [filename] = argsArray;
         const currentDir = process.cwd();

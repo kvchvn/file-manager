@@ -1,7 +1,7 @@
-import { dirname, resolve } from 'path';
 import { readdir } from 'fs/promises';
+import { dirname, resolve } from 'path';
 
-import { INVALID_INPUT_ERROR } from '../constants.js';
+import { INVALID_ARGUMENTS_ERROR } from '../constants.js';
 import { print } from '../utils.js';
 
 const handleNavigationCommand = async (mainCommand, argsArray) => {
@@ -16,7 +16,7 @@ const handleNavigationCommand = async (mainCommand, argsArray) => {
 };
 
 function goToUpperDir(argsArray) {
-    if (argsArray.length) throw new Error(INVALID_INPUT_ERROR);
+    if (argsArray.length) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const currentDir = process.cwd();
         const upperDir = dirname(currentDir);
@@ -27,7 +27,7 @@ function goToUpperDir(argsArray) {
 }
 
 function changeDir(argsArray) {
-    if (argsArray.length !== 1) throw new Error(INVALID_INPUT_ERROR);
+    if (argsArray.length !== 1) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const [dirName] = argsArray;
         const currentDir = process.cwd();
@@ -39,7 +39,7 @@ function changeDir(argsArray) {
 }
 
 async function readCurrentDir(argsArray) {
-    if (argsArray.length) throw new Error(INVALID_INPUT_ERROR);
+    if (argsArray.length) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const currentDir = process.cwd();
         const dirContent = await readdir(currentDir, { withFileTypes: true });

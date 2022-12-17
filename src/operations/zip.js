@@ -4,8 +4,8 @@ import { dirname, resolve } from 'path';
 import { pipeline } from 'stream/promises';
 import { createBrotliCompress, createBrotliDecompress, constants } from 'zlib';
 
-import { INVALID_INPUT_ERROR } from '../constants.js';
-import {print} from "../utils.js";
+import { INVALID_ARGUMENTS_ERROR } from '../constants.js';
+import { print } from '../utils.js';
 
 const handleZipCommand = async (mainCommand, argsArray) => {
     switch (mainCommand) {
@@ -17,7 +17,7 @@ const handleZipCommand = async (mainCommand, argsArray) => {
 };
 
 async function compressFile(argsArray) {
-    if (argsArray.length !== 2) throw new Error(INVALID_INPUT_ERROR);
+    if (argsArray.length !== 2) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const [filePath, archivePath] = argsArray;
         const currentDir = process.cwd();
@@ -46,7 +46,7 @@ async function compressFile(argsArray) {
 }
 
 async function decompressFile(argsArray) {
-    if (argsArray.length !== 2) throw new Error(INVALID_INPUT_ERROR);
+    if (argsArray.length !== 2) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const [archivePath, filePath] = argsArray;
         const currentDir = process.cwd();

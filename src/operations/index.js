@@ -1,9 +1,10 @@
 import handleFileCommand from './file.js';
+import handleHashCommand from './hash.js';
 import handleNavigationCommand from './navigation.js';
-import handleOsCommand from "./os.js";
-import handleHashCommand from "./hash.js";
-import handleZipCommand from "./zip.js";
-import { COMMANDS_LIST, ERROR_TYPES, INVALID_INPUT_ERROR, OPERATION_FAILED_ERROR, INVALID_COMMAND_ERROR } from '../constants.js';
+import handleOsCommand from './os.js';
+import handleZipCommand from './zip.js';
+
+import { COMMANDS_LIST, ERROR_TYPES, OPERATION_FAILED_ERROR, INVALID_COMMAND_ERROR, INVALID_NAME_ERROR } from '../constants.js';
 import { getLocation } from '../messages.js';
 import { print } from '../utils.js';
 
@@ -44,7 +45,7 @@ const parseCommandArgs = (commandLine) => {
     });
 
     if (quotesCount % 2 !== 0) {
-        throw new Error(INVALID_INPUT_ERROR);
+        throw new Error(INVALID_NAME_ERROR);
     }
     
     return parsedCommandArray;
@@ -70,7 +71,7 @@ const handleCommand = async (commandLine) => {
                 await callback(mainCommand, argsArray);
             }
         }
-        if (!commandIsValid) throw new Error(`${INVALID_INPUT_ERROR} ${INVALID_COMMAND_ERROR}`);
+        if (!commandIsValid) throw new Error(INVALID_COMMAND_ERROR);
     } catch (err) {
         if (!err.code) {
             print(err.message);

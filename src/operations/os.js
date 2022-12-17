@@ -1,6 +1,6 @@
 import { EOL, homedir, cpus, arch, hostname } from 'os';
 
-import { INVALID_COMMAND_ERROR, INVALID_INPUT_ERROR } from '../constants.js';
+import { INVALID_COMMAND_ERROR, INVALID_ARGUMENTS_ERROR } from '../constants.js';
 import { print } from '../utils.js';
 
 const handleOsCommand = (mainCommand, argsArray) => {
@@ -12,7 +12,7 @@ const handleOsCommand = (mainCommand, argsArray) => {
 
 function getOsInfo(argsArray) {
     const [arg] = argsArray;
-    if (argsArray.length !== 1 || !arg.startsWith('--') || !arg.slice(2)) throw new Error(INVALID_INPUT_ERROR);
+    if (argsArray.length !== 1 || !arg.startsWith('--') || !arg.slice(2)) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const formattedArg = arg.slice(2);
         switch (formattedArg) {
@@ -36,7 +36,7 @@ function getOsInfo(argsArray) {
                 break;
             case 'architecture': print(arch())
                 break;
-            default: throw new Error(`${INVALID_INPUT_ERROR} ${INVALID_COMMAND_ERROR}`);
+            default: throw new Error(INVALID_COMMAND_ERROR);
         }
     } catch (err) {
         throw err;
