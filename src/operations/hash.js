@@ -15,9 +15,8 @@ const handleHashCommand = async (mainCommand, argsArray) => {
 async function calculateHash(argsArray) {
     if (argsArray.length !== 1) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
-        const [filename] = argsArray;
-        const currentDir = process.cwd();
-        const resolvedFilePath = resolve(currentDir, filename);
+        const [filePath] = argsArray;
+        const resolvedFilePath = resolve(filePath);
 
         await new Promise((resolve, reject) => {
             const rs = createReadStream(resolvedFilePath);

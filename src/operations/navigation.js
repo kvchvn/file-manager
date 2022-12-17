@@ -18,8 +18,7 @@ const handleNavigationCommand = async (mainCommand, argsArray) => {
 function goToUpperDir(argsArray) {
     if (argsArray.length) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
-        const currentDir = process.cwd();
-        const upperDir = dirname(currentDir);
+        const upperDir = dirname(process.cwd());
         process.chdir(upperDir);
     } catch (err) {
        throw err;
@@ -30,8 +29,7 @@ function changeDir(argsArray) {
     if (argsArray.length !== 1) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const [dirName] = argsArray;
-        const currentDir = process.cwd();
-        const newDir = resolve(currentDir, dirName);
+        const newDir = resolve(dirName);
         process.chdir(newDir);
     } catch (err) {
         throw err;
@@ -41,8 +39,7 @@ function changeDir(argsArray) {
 async function readCurrentDir(argsArray) {
     if (argsArray.length) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
-        const currentDir = process.cwd();
-        const dirContent = await readdir(currentDir, { withFileTypes: true });
+        const dirContent = await readdir(process.cwd(), { withFileTypes: true });
         if (dirContent.length) {
             const tableDirContent = dirContent
                 .map((dirent) => {

@@ -26,8 +26,7 @@ async function readFile(argsArray) {
     if (argsArray.length !== 1) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const [filePath] = argsArray;
-        const currentDir = process.cwd();
-        const resolvedFilePath = resolve(currentDir, filePath);
+        const resolvedFilePath = resolve(filePath);
         const rs = createReadStream(resolvedFilePath);
 
         await new Promise((resolve, reject) => {
@@ -51,11 +50,10 @@ async function addFile(argsArray) {
     try {
         const EMPTY_DATA = '';
 
-        const [filename] = argsArray;
-        const currentDir = process.cwd();
-        const filePath = join(currentDir, filename);
+        const [filePath] = argsArray;
+        const resolvedFilePath = resolve(filePath);
 
-        await appendFile(filePath, EMPTY_DATA, { flag: 'ax' });
+        await appendFile(resolvedFilePath, EMPTY_DATA, { flag: 'ax' });
         print('The file was successfully created.');
     } catch (err) {
         throw err;
@@ -66,8 +64,7 @@ async function renameFile(argsArray) {
     const [filePath, newFilename] = argsArray;
     if (argsArray.length !== 2  || newFilename.includes('/')) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
-        const currentDir = process.cwd();
-        const resolvedFilePath = resolve(currentDir, filePath);
+        const resolvedFilePath = resolve(filePath);
         const parsedFilePath = parse(resolvedFilePath);
         const newFilePath = format({ ...parsedFilePath, base: newFilename });
 
@@ -83,9 +80,8 @@ async function copyFile(argsArray, { shouldRemoveSourceFile } = { shouldRemoveSo
     if (argsArray.length !== 2) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const fileName = parse(filePath).base;
-        const currentDir = process.cwd();
-        const resolvedFilePath = resolve(currentDir, filePath);
-        const resolvedDirForCopy = resolve(currentDir, dirForCopy);
+        const resolvedFilePath = resolve(filePath);
+        const resolvedDirForCopy = resolve(dirForCopy);
         const pathForCopy = join(resolvedDirForCopy, fileName);
 
         await Promise.all([access(resolvedFilePath), access(resolvedDirForCopy)]);
@@ -127,11 +123,10 @@ async function moveFile(argsArray) {
 async function removeFile(argsArray) {
     if (argsArray.length !== 1) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
-        const [filename] = argsArray;
-        const currentDir = process.cwd();
-        const filePath = resolve(currentDir, filename);
+        const [filePath] = argsArray;
+        const resolvedFilePath = resolve(filePath);
 
-        await rm(filePath);
+        await rm(resolvedFilePath);
 
         print('The file was successfully removed.');
     } catch (err) {

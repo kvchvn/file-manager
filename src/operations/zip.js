@@ -20,9 +20,8 @@ async function compressFile(argsArray) {
     if (argsArray.length !== 2) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const [filePath, archivePath] = argsArray;
-        const currentDir = process.cwd();
-        const resolvedFilePath = resolve(currentDir, filePath);
-        const resolvedArchivePath = resolve(currentDir, archivePath);
+        const resolvedFilePath = resolve(filePath);
+        const resolvedArchivePath = resolve(archivePath);
         const resolvedArchiveDir = dirname(resolvedArchivePath);
 
         await Promise.all([access(resolvedFilePath), access(resolvedArchiveDir)]);
@@ -49,9 +48,8 @@ async function decompressFile(argsArray) {
     if (argsArray.length !== 2) throw new Error(INVALID_ARGUMENTS_ERROR);
     try {
         const [archivePath, filePath] = argsArray;
-        const currentDir = process.cwd();
-        const resolvedArchivePath = resolve(currentDir, archivePath);
-        const resolvedFilePath = resolve(currentDir, filePath);
+        const resolvedArchivePath = resolve(archivePath);
+        const resolvedFilePath = resolve(filePath);
         const resolvedFileDir = dirname(resolvedFilePath);
 
         await Promise.all([access(resolvedArchivePath), access(resolvedFileDir)]);
