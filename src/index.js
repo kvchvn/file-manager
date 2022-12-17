@@ -1,19 +1,10 @@
-import { homedir } from 'os';
-import { createInterface } from 'readline/promises';
+import { createInterface } from 'readline';
 
-import { formattedUsername as username, greet, getLocation, sayGoodbye } from './messages.js';
+import { formattedUsername as username, getLocation, sayGoodbye } from './messages.js';
 import handleCommand from './operations/index.js';
-import { goToNextLine, print } from './utils.js';
+import { goToNextLine, print, moveToHomedir } from './utils.js';
 
-const moveToHomedir = () => {
-    try {
-        process.chdir(homedir());
-        greet(username);
-        getLocation();
-    } catch (err) {
-        print(err.message);
-    }
-};
+moveToHomedir(username);
 
 const readline = createInterface({ input: process.stdin });
 
@@ -38,5 +29,3 @@ process.on('SIGINT', () => {
 process.on('exit', () => {
     sayGoodbye(username);
 });
-
-export default moveToHomedir;
