@@ -1,0 +1,21 @@
+{
+  "name": "file-manager",
+  "version": "1.0.0",
+  "description": "the Rolling Scopes School, Node.js, May 2025",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "file-manager"
+  },
+  "keywords": [
+    "file-manager",
+    "node.js",
+    "cli"
+  ],
+  "author": "Anton Kachan",
+  "license": "ISC"
+}
