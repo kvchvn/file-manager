@@ -14,8 +14,8 @@ export const runFileManager = async () => {
   process.chdir(os.homedir());
 
   readline.createInterface(process.stdin, process.stdout)
-    .on('line', (line) => {
-      commandDispatcher(line);
+    .on('line', async (line) => {
+      await commandDispatcher(line);
       printCurrentCwd();
     });
 
