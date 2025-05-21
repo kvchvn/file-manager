@@ -3,8 +3,9 @@ import os from 'node:os';
 import readline from 'node:readline/promises';
 import { greet } from "./utils/greet.js";
 import { bye } from "./utils/bye.js";
-import { printCurrentCwd } from "./utils/print.js";
+import { printCwd } from "./utils/print-cwd.js";
 import { commandDispatcher } from "./operations/command-dispatcher.js";
+import { printError } from "./utils/print-error.js";
 
 export const runFileManager = async () => {
   greet();
@@ -13,16 +14,21 @@ export const runFileManager = async () => {
    */
   process.chdir(os.homedir());
 
-  readline.createInterface(process.stdin, process.stdout)
+  readline.createInterface(process.stdin)
     .on('line', async (line) => {
-      await commandDispatcher(line);
-      printCurrentCwd();
+      if (line) {
+        await commandDispatcher(line);
+      }
+
+      printCwd();
     });
 
-  printCurrentCwd();
+  // Initial
+  printCwd();
 
   process.on('SIGINT', () => {
     process.exit();
   });
+
   process.on('exit', bye);
 };
