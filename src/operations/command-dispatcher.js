@@ -10,16 +10,20 @@ import { moveFile } from "./file/move-file.js";
 import { readFile } from "./file/read-file.js";
 import { removeFile } from "./file/remove-file.js";
 import { renameFile } from "./file/rename-file.js";
+import { calcHash } from "./hash/calc-hash.js";
 import { getOsInfo } from "./os/get-os-info.js";
 
 /**
  * @type {{ [string]: { argsCount: number; callback: (args?: unknown[]) => void } }}
  */
 const SUPPORTED_COMMANDS = {
+  // common
   ".exit": { argsCount: 0, callback: process.exit },
+  // dir
   up: { argsCount: 0, callback: goUp },
   ls: { argsCount: 0, callback: readDir },
   cd: { argsCount: 1, callback: goToDir },
+  // file
   cat: { argsCount: 1, callback: readFile },
   add: { argsCount: 1, callback: createFile },
   mkdir: { argsCount: 1, callback: createDir },
@@ -27,7 +31,10 @@ const SUPPORTED_COMMANDS = {
   cp: { argsCount: 2, callback: copyFile },
   mv: { argsCount: 2, callback: moveFile },
   rm: { argsCount: 1, callback: removeFile },
+  // os
   os: { argsCount: 1, callback: getOsInfo },
+  // hash
+  hash: { argsCount: 1, callback: calcHash },
 };
 
 /**
