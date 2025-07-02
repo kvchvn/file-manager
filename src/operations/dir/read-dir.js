@@ -1,16 +1,20 @@
-import fsPromises from 'node:fs/promises';
+import fsPromises from "node:fs/promises";
 
 export const readDir = async () => {
   const dirent = await fsPromises.readdir(process.cwd(), { withFileTypes: true });
 
   const table = dirent.map((entity) => {
-    let type = '<unknown>';
-    if (entity.isDirectory()) {
-      type = 'directory';
-    } else if (entity.isFile()) {
-      type = 'file';
-    } else if (entity.isSymbolicLink()) {
-      type = 'symbolic link';
+    let type = "<unknown>";
+
+    switch (true) {
+      case entity.isDirectory():
+        type = "directory";
+        break;
+      case entity.isFile():
+        type = "file";
+        break;
+      case entity.isSymbolicLink():
+        type = "symbolic link";
     }
 
     return {
@@ -20,4 +24,4 @@ export const readDir = async () => {
   });
 
   console.table(table);
-}
+};
