@@ -7,6 +7,6 @@ export const printError = (err) => {
   } else {
     const description = ERROR_DESC_BY_CODE[err.code] ?? "";
 
-    console.log(`${ERROR.operationFailed}${description ? `: ${description}` : ""}`);
+    console.log(`${ERROR.operationFailed}${description ? ` ${description}` : ""}`);
   }
 };

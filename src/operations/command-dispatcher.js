@@ -4,13 +4,15 @@ import { printError } from "../utils/print-error.js";
 import { createDir } from "./dir/create-dir.js";
 import { goToDir, goUp } from "./dir/go-to-dir.js";
 import { readDir } from "./dir/read-dir.js";
+import { calcHash } from "./file/calc-hash.js";
+import { compressFile } from "./file/compress-file.js";
 import { copyFile } from "./file/copy-file.js";
 import { createFile } from "./file/create-file.js";
+import { decompressFile } from "./file/decompress-file.js";
 import { moveFile } from "./file/move-file.js";
 import { readFile } from "./file/read-file.js";
 import { removeFile } from "./file/remove-file.js";
 import { renameFile } from "./file/rename-file.js";
-import { calcHash } from "./hash/calc-hash.js";
 import { getOsInfo } from "./os/get-os-info.js";
 
 /**
@@ -31,10 +33,11 @@ const SUPPORTED_COMMANDS = {
   cp: { argsCount: 2, callback: copyFile },
   mv: { argsCount: 2, callback: moveFile },
   rm: { argsCount: 1, callback: removeFile },
-  // os
-  os: { argsCount: 1, callback: getOsInfo },
-  // hash
   hash: { argsCount: 1, callback: calcHash },
+  compress: { argsCount: 2, callback: compressFile },
+  decompress: { argsCount: 2, callback: decompressFile },
+  // os
+  os: { argsCount: 2, callback: getOsInfo },
 };
 
 /**
