@@ -47,8 +47,6 @@ export const commandDispatcher = async (line) => {
   try {
     const [baseCommand, ...args] = parseCommandLine(line);
 
-    console.log({ baseCommand, args });
-
     const currentCommand = SUPPORTED_COMMANDS[baseCommand];
 
     if (!currentCommand) {

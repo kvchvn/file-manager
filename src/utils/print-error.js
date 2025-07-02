@@ -1,7 +1,6 @@
 import { ERROR, ERROR_DESC_BY_CODE } from "../constants.js";
 
 export const printError = (err) => {
-  console.log("Error: ", err);
   if (err.cause === ERROR.invalidInput) {
     console.log(err.message);
   } else {
