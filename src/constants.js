@@ -1,8 +1,8 @@
 export const ERROR = {
-  invalidInput: "Invalid input!",
-  invalidArgs: "Invalid input! Invalid arguments!",
-  unsupportedCommand: "Invalid input! Unsupported command!",
-  operationFailed: "Operation failed!",
+  invalidInput: "Invalid input.",
+  invalidArgs: "Invalid input. Invalid arguments.",
+  unsupportedCommand: "Invalid input. Unsupported command.",
+  operationFailed: "Operation failed.",
 };
 
 export const ERROR_DESC_BY_CODE = {

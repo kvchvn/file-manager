@@ -10,6 +10,7 @@ import { moveFile } from "./file/move-file.js";
 import { readFile } from "./file/read-file.js";
 import { removeFile } from "./file/remove-file.js";
 import { renameFile } from "./file/rename-file.js";
+import { getOsInfo } from "./os/get-os-info.js";
 
 /**
  * @type {{ [string]: { argsCount: number; callback: (args?: unknown[]) => void } }}
@@ -26,6 +27,7 @@ const SUPPORTED_COMMANDS = {
   cp: { argsCount: 2, callback: copyFile },
   mv: { argsCount: 2, callback: moveFile },
   rm: { argsCount: 1, callback: removeFile },
+  os: { argsCount: 1, callback: getOsInfo },
 };
 
 /**
@@ -38,12 +40,17 @@ export const commandDispatcher = async (line) => {
     console.log({ baseCommand, args });
 
     const currentCommand = SUPPORTED_COMMANDS[baseCommand];
-    // excessive args will be ignored
-    if (currentCommand && args.length >= currentCommand.argsCount) {
-      await currentCommand.callback?.(...args.slice(0, currentCommand.argsCount));
-    } else {
-      throw new Error(ERROR.unsupportedCommand);
+
+    if (!currentCommand) {
+      throw new Error(ERROR.unsupportedCommand, { cause: ERROR.invalidInput });
     }
+
+    // excessive args will be ignored
+    if (args.length < currentCommand.argsCount) {
+      throw new Error(ERROR.invalidArgs, { cause: ERROR.invalidInput });
+    }
+
+    await currentCommand.callback?.(...args.slice(0, currentCommand.argsCount));
   } catch (err) {
     printError(err);
   }
